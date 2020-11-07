@@ -39,7 +39,7 @@ System.gc()时使用cms
 -XX:+ExplicitGCInvokesConcurrent
 启用并行处理器
 -XX:+ParallelRefProcEnabled
-指定内存溢出的内存dump日志路径
+堆栈溢出时的保存dump日志
 -XX:+HeapDumpOnOutOfMemoryError
 指定堆栈日志目录
 -XX:HeapDumpPath=/home/devjava/logs/
