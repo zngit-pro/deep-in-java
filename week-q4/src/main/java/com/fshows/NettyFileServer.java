@@ -9,42 +9,38 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
-public class HttpServerDemo {
+public class NettyFileServer {
     public static void main(String[] args) throws Exception {
-        // 创建两个线程池
-        NioEventLoopGroup acceptEventExecutors = new NioEventLoopGroup();
-        NioEventLoopGroup readEventExecutors = new NioEventLoopGroup();
 
-        // 1、创建ServerBootstrap
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 
-        // 2.配置ServerBootstrap
         ChannelFuture channelFuture = serverBootstrap
-                // 设置netty线程模型
-                .group(acceptEventExecutors, readEventExecutors)
-                // 设置Netty、类型
+                .group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer() {
                     @Override
                     protected void initChannel(Channel channel) throws Exception {
-                        // 链式
+
                         ChannelPipeline pipeline = channel.pipeline();
 
-                        // 添加入栈的处理器 ---》把ByteBuf转成字符串
                         pipeline.addLast(new HttpServerCodec());
 
-                        // 添加入栈处理器 --》把字符串转成HttpFullRequest对象
-                        pipeline.addLast(new HttpObjectAggregator(1024));
+                        pipeline.addLast(new HttpObjectAggregator(1000 * 1024));
 
-                        pipeline.addLast(new HttpServletRequest());
+                        pipeline.addLast(new HttpDownloadHandler());
+
+                        pipeline.addLast(new ChunkedWriteHandler());
+
+                        pipeline.addLast(new HttpUploadHandler());
+
                     }
-                })
-                // 绑定端口的操作是异步的
-                .bind(8888);
+                }).bind(8888);
+
         // 阻塞
         channelFuture.sync();
-        System.out.println("HTTP服务端启动成功。。。");
+        System.out.println("服务启动成功");
     }
 
 }
