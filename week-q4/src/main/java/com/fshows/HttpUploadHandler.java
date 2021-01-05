@@ -62,7 +62,7 @@ public class HttpUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
             InterfaceHttpData data = httpDecoder.next();
             if (data != null && InterfaceHttpData.HttpDataType.FileUpload.equals(data.getHttpDataType())) {
                 final FileUpload fileUpload = (FileUpload) data;
-                final File file = new File(HttpResponseUtil.FILE_PATH + fileUpload.getFilename());
+                final File file = new File(HttpResponseUtil.FILE_PATH + "temp/" + fileUpload.getFilename());
                 byte[] array = fileUpload.getByteBuf().array();
                 FileUtils.writeByteArrayToFile(file, array);
                 HttpResponseUtil.writeHtml("上传完毕...", ctx);
